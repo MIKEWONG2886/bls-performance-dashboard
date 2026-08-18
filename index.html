@@ -22,21 +22,21 @@
     <button class="role-card active" data-role="presenter"><b>Presenter</b><span>MIKE · WINSLEY · JACK · SIM · SK</span></button>
     <button class="role-card" data-role="customerService"><b>Customer Services</b><span>ZURA · JULIA · SHU · KAI · IRA</span></button>
     <div class="side-label">People</div><div class="people" id="people"></div>
-    <div class="source-note"><b>Latest sources</b>SIGN TRACKER 2026 NEW<br>APPT TRACKER (2026)<br>Google Sheets · refreshed 2026-08-17</div>
+    <div class="source-note"><b>Live sources</b>SIGN TRACKER 2026 NEW<br>APPT TRACKER (2026)<br><span id="refreshed">Connecting to Google Sheets…</span></div>
   </aside>
   <main>
-    <header class="head"><div><div class="eyebrow">2026 performance command center</div><h1 id="title">Presenter Performance</h1><p id="subtitle">按月查看预约记录、签约与来源表现。</p></div><span class="local">● 本地预览 · 未发布</span></header>
+    <header class="head"><div><div class="eyebrow">2026 performance command center</div><h1 id="title">Presenter Performance</h1><p id="subtitle">按月查看预约记录、签约与来源表现。</p></div><span class="local" id="liveStatus">● 正在读取最新数据</span></header>
     <section class="filters"><div class="filter"><label for="month">月份</label><select id="month"></select></div><div class="filter"><label for="person">人员</label><select id="person"></select></div><div class="scope" id="scope"></div></section>
     <section class="cards" id="cards"></section>
     <section class="grid"><article class="panel"><div class="panel-head"><div><h2 id="rankTitle">人员表现排名</h2><p id="rankSub">点击柱组筛选人员</p></div><div class="legend"><span><i style="background:var(--blue)"></i><span id="rankLegend1">记录</span></span><span><i style="background:var(--green)"></i><span id="rankLegend2">签约</span></span></div></div><div class="chart-pad"><div class="bars" id="rankChart"></div></div></article><article class="panel"><div class="panel-head"><div><h2>签约转化率</h2><p>Signed ÷ Records</p></div></div><div class="donut-wrap"><div class="donut" id="donut"><div><strong id="rate">—</strong><small>签约率</small></div></div></div><div class="status-grid" id="statusGrid"></div></article></section>
     <section class="grid"><article class="panel"><div class="panel-head"><div><h2>月度趋势</h2><p id="trendSub">仅使用原表 2026 年 1–8 月记录</p></div><div class="legend"><span><i style="background:var(--blue)"></i><span id="trendLegend1">记录</span></span><span><i style="background:var(--green)"></i><span id="trendLegend2">签约</span></span></div></div><div class="trend-pad"><div class="trend" id="trend"></div></div></article><article class="panel"><div class="panel-head"><div><h2>主要来源</h2><p>当前筛选范围</p></div></div><div class="source-list" id="sources"></div></article></section>
-    <section class="grid"><article class="panel table-panel"><div class="table-title"><div class="panel-head"><div><h2>记录明细</h2><p>点击任意记录查看完整原始字段</p></div></div></div><div class="table-wrap"><table><thead><tr><th>月份</th><th>客户</th><th>Presenter</th><th>Customer Service</th><th>来源</th><th>结果</th></tr></thead><tbody id="records"></tbody></table></div></article><article class="panel"><div class="panel-head"><div><h2>管理洞察</h2><p>依据当前筛选动态计算</p></div></div><div class="insights" id="insights"></div></article></section>
-    <div class="footnote">数据口径：Customer Services 的 Leads、Documents、Appointments 来自最新整理的 APPT TRACKER (2026)；签约数和签约率保留自 SIGN TRACKER 2026 NEW。仅当 Remark 明确包含 “SIGNED” 时计为签约。APPT TRACKER (2026) 已集中提供 1–8 月月报；IRA 缺少对应原始记录时显示“无数据”，不会补零。</div>
+    <section class="grid"><article class="panel"><div class="panel-head"><div><h2>数据隐私</h2><p>安全的实时汇总</p></div></div><div class="insights"><div class="insight"><b>客户明细不会传送到网页</b><p>Netlify 后端只返回按月份、人员、来源和结果分类后的汇总数值。客户名称、日期和原始 Remark 不会进入浏览器或 GitHub。</p></div><div class="insight"><b>自动更新</b><p>每次打开或刷新页面都会读取 Google Sheets；服务器最多缓存五分钟，减少重复请求。</p></div></div><div id="records" hidden></div></article><article class="panel"><div class="panel-head"><div><h2>管理洞察</h2><p>依据当前筛选动态计算</p></div></div><div class="insights" id="insights"></div></article></section>
+    <div class="footnote">数据口径：Customer Services 的 Leads、Documents、Appointments 来自 APPT TRACKER (2026)；签约数和签约率来自 SIGN TRACKER 2026 NEW。仅当 Remark 明确包含 “SIGNED” 时计为签约。网页只接收汇总数据，不公开客户名称、日期或原始 Remark。</div>
   </main>
 </div>
 <dialog id="detail"><div class="modal-head"><h3 id="modalTitle"></h3><p id="modalSub"></p></div><div class="modal-body"><div class="record-grid" id="modalGrid"></div><button class="close" id="close">关闭</button></div></dialog>
 <script>
-const DATA={
+let DATA={
   "source": "Google Sheets / SIGN TRACKER 2026 NEW / gid 1655519694",
   "extractedAt": "2026-08-17",
   "months": [
@@ -68,2513 +68,1572 @@ const DATA={
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "ZURA",
-      "date": "7.1.26",
-      "client": "NEXPERIA",
       "presenter": "WINSLEY",
       "source": "BLS IG",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 2
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "ZURA",
-      "date": null,
-      "client": "DNP",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "REJECTED MONEY LENDEY",
       "outcome": "REJECTED",
-      "sourceRow": 3
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "ZURA",
-      "date": "29.1.26",
-      "client": "NI MALAYSIA",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 4
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "ZURA",
-      "date": "8.1.26",
-      "client": "OPULENT",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "FOLLOW UP",
       "outcome": "FOLLOW UP",
-      "sourceRow": 5
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "ZURA",
-      "date": "10.1.26",
-      "client": "HOWDEN",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 6
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "ZURA",
-      "date": "15.1.26",
-      "client": "CRESTINO",
       "presenter": "WINSLEY",
       "source": "BOSCO TIKTOK",
-      "remark": "CANT AFFORD",
       "outcome": "OTHER",
-      "sourceRow": 7
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "ZURA",
-      "date": null,
-      "client": "ACETEAM",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "DW PROCEED",
       "outcome": "OTHER",
-      "sourceRow": 8
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "ZURA",
-      "date": "22.1.26",
-      "client": "SELKA",
       "presenter": "WINSLEY",
       "source": "JULIA TIKTOK",
-      "remark": "FOLLOW UP",
       "outcome": "FOLLOW UP",
-      "sourceRow": 9
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "ZURA",
-      "date": "30.1.26",
-      "client": "CARSOME",
       "presenter": "SK",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 10
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "ZURA",
-      "date": "28.1.26",
-      "client": "IHT",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "FOLLOW UP",
       "outcome": "FOLLOW UP",
-      "sourceRow": 11
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "ZURA",
-      "date": "29.1.26",
-      "client": "EQUATORIAL",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "REJECTED",
       "outcome": "REJECTED",
-      "sourceRow": 12
-    },
-    {
-      "month": "JANUARY",
-      "monthIndex": 1,
-      "customerService": "ZURA",
-      "date": "29.1.26",
-      "client": "LARYNGEAL",
-      "presenter": "MIKE",
-      "source": "BLS TIKTOK",
-      "remark": "REJECTED",
-      "outcome": "REJECTED",
-      "sourceRow": 13
+      "count": 2
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "JULIA",
-      "date": "6.1.26",
-      "client": "TENQ",
       "presenter": "MIKE",
       "source": "JULIA INSTA",
-      "remark": "DISCUSS WITH SIS",
       "outcome": "OTHER",
-      "sourceRow": 2
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "JULIA",
-      "date": "7.1.26",
-      "client": "KINTETSU",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 3
+      "count": 2
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "JULIA",
-      "date": "8.1.26",
-      "client": "PENANG HALAL",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 4
+      "count": 2
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "JULIA",
-      "date": "9.1.26",
-      "client": "LOTUSS",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 5
+      "count": 3
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "JULIA",
-      "date": "10.1.26",
-      "client": "TRINITY",
       "presenter": "MIKE",
       "source": "BOSCO TIKTOK",
-      "remark": "REJECT NEED 1 YEAR",
       "outcome": "REJECTED",
-      "sourceRow": 6
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "JULIA",
-      "date": "13.1.26",
-      "client": "F&N",
-      "presenter": "JACK",
-      "source": "BLS TIKTOK",
-      "remark": "SIGNED",
-      "outcome": "SIGNED",
-      "sourceRow": 7
-    },
-    {
-      "month": "JANUARY",
-      "monthIndex": 1,
-      "customerService": "JULIA",
-      "date": "13.1.26",
-      "client": "BEREMI",
       "presenter": "JACK",
       "source": "BLS IG",
-      "remark": "FOLLOW UP",
       "outcome": "FOLLOW UP",
-      "sourceRow": 8
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "JULIA",
-      "date": "13.1.26",
-      "client": "HOT & ROLLS",
       "presenter": "MIKE",
       "source": "BOSCO TIKTOK",
-      "remark": "PTS",
       "outcome": "PTS",
-      "sourceRow": 9
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "JULIA",
-      "date": "14.1.26",
-      "client": "HASIL INTEGRA",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "REJECT CUSTOMER CAN SETTLE",
       "outcome": "REJECTED",
-      "sourceRow": 10
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "JULIA",
-      "date": "15.1.26",
-      "client": "INSA PADU",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 11
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "JULIA",
-      "date": "16.1.26",
-      "client": "QSR",
       "presenter": "WINSLEY",
       "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 12
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "JULIA",
-      "date": "20.1.26",
-      "client": "AFFIN",
       "presenter": "JACK",
       "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 13
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "JULIA",
-      "date": "21.1.26",
-      "client": "HARTALEGA",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "PTS",
       "outcome": "PTS",
-      "sourceRow": 14
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "JULIA",
-      "date": "26.1.26",
-      "client": "FLEXTORNICS",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 15
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "JULIA",
-      "date": "27.1.26",
-      "client": "PKT LOGISTICS",
       "presenter": "WINSLEY",
       "source": "BOSCO TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 16
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "JULIA",
-      "date": "29.1.26",
-      "client": "TELEPERFORMANCE",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "RE",
       "outcome": "OTHER",
-      "sourceRow": 17
-    },
-    {
-      "month": "JANUARY",
-      "monthIndex": 1,
-      "customerService": "JULIA",
-      "date": "30.1.26",
-      "client": "ANGENET",
-      "presenter": "JACK",
-      "source": "BLS TIKTOK",
-      "remark": "CONSIDER",
-      "outcome": "CONSIDER",
-      "sourceRow": 18
-    },
-    {
-      "month": "JANUARY",
-      "monthIndex": 1,
-      "customerService": "JULIA",
-      "date": "30.1.26",
-      "client": "QL MAXINCOME",
-      "presenter": "JACK",
-      "source": "BLS TIKTOK",
-      "remark": "SIGNED",
-      "outcome": "SIGNED",
-      "sourceRow": 19
-    },
-    {
-      "month": "JANUARY",
-      "monthIndex": 1,
-      "customerService": "JULIA",
-      "date": "30.1.26",
-      "client": "SANI CANOPY",
-      "presenter": "MIKE",
-      "source": "BLS TIKTOK",
-      "remark": "SIGNED",
-      "outcome": "SIGNED",
-      "sourceRow": 20
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "WIN BACK PROGRAM",
-      "date": "13.1.26",
-      "client": "SPX XPRESS",
       "presenter": "JACK",
       "source": "BLS CRM",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 2
+      "count": 1
     },
     {
       "month": "JANUARY",
       "monthIndex": 1,
       "customerService": "WIN BACK PROGRAM",
-      "date": "13.1.26",
-      "client": "HARTALEGA (SUGESH)",
       "presenter": "WINSLEY",
       "source": "BLS CRM",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 3
+      "count": 1
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "KAI",
-      "date": "4.2.26",
-      "client": "MALAYSIA GAZETTE",
       "presenter": "SIM",
       "source": "OTHER",
-      "remark": "REJECTED",
       "outcome": "REJECTED",
-      "sourceRow": 25
+      "count": 1
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "KAI",
-      "date": "9.2.26",
-      "client": "LAM RESEARCH",
       "presenter": "JACK",
       "source": "OTHER",
-      "remark": "REJECTED",
       "outcome": "REJECTED",
-      "sourceRow": 26
+      "count": 1
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "ZURA",
-      "date": "2.2.26",
-      "client": "THIQA OMNIA",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "REJECTED",
       "outcome": "REJECTED",
-      "sourceRow": 25
+      "count": 1
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "ZURA",
-      "date": "2.2.26",
-      "client": "HSBC",
       "presenter": "MIKE",
       "source": "BLS IG",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 26
+      "count": 1
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "ZURA",
-      "date": "3.2.26",
-      "client": "GERBANG ALAF",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 27
+      "count": 2
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "ZURA",
-      "date": "5.2.26",
-      "client": "SELENGARA",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "REJECTED",
       "outcome": "REJECTED",
-      "sourceRow": 28
+      "count": 1
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "ZURA",
-      "date": "10.2.26",
-      "client": "PIPEWORK",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "EDUCATE NEED 1 YEAR",
       "outcome": "OTHER",
-      "sourceRow": 29
+      "count": 1
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "ZURA",
-      "date": "11.2.26",
-      "client": "DHL",
       "presenter": "WINSLEY",
       "source": "BLS IG",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 30
+      "count": 1
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "ZURA",
-      "date": "27.2.26",
-      "client": "SK INTELLIX",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 31
+      "count": 1
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "ZURA",
-      "date": "24.2.26",
-      "client": "DENSO",
       "presenter": "MIKE",
       "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 32
-    },
-    {
-      "month": "FEBRUARY",
-      "monthIndex": 2,
-      "customerService": "ZURA",
-      "date": "14.2.26",
-      "client": "COMMERZ",
-      "presenter": "WINSLEY",
-      "source": "BLS TIKTOK",
-      "remark": "SIGNED",
-      "outcome": "SIGNED",
-      "sourceRow": 33
-    },
-    {
-      "month": "FEBRUARY",
-      "monthIndex": 2,
-      "customerService": "ZURA",
-      "date": "27.2.26",
-      "client": "INFINEON",
-      "presenter": "MIKE",
-      "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
-      "outcome": "SIGNED",
-      "sourceRow": 34
+      "count": 2
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "JULIA",
-      "date": "04.02.2026",
-      "client": "TM TECHNOLOGY",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "REJECTED",
       "outcome": "REJECTED",
-      "sourceRow": 25
+      "count": 3
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "JULIA",
-      "date": "05.02.2026",
-      "client": "OCBC",
       "presenter": "MIKE",
       "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 26
+      "count": 1
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "JULIA",
-      "date": "06.02.2026",
-      "client": "FLEXTRONICS",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 27
+      "count": 2
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "JULIA",
-      "date": "06.02.2026",
-      "client": "SUNWAY",
-      "presenter": "WINSLEY",
-      "source": "BLS TIKTOK",
-      "remark": "SIGNED",
-      "outcome": "SIGNED",
-      "sourceRow": 28
-    },
-    {
-      "month": "FEBRUARY",
-      "monthIndex": 2,
-      "customerService": "JULIA",
-      "date": "09.02.2026",
-      "client": "GUAN CHONG COCOA",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 29
+      "count": 3
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "JULIA",
-      "date": "09.02.2026",
-      "client": "REGENCY SPECIALIST",
-      "presenter": "WINSLEY",
-      "source": "BLS TIKTOK",
-      "remark": "REJECTED",
-      "outcome": "REJECTED",
-      "sourceRow": 30
-    },
-    {
-      "month": "FEBRUARY",
-      "monthIndex": 2,
-      "customerService": "JULIA",
-      "date": "10.02.2026",
-      "client": "PALL",
       "presenter": "WINSLEY",
       "source": "JULIA IG",
-      "remark": "2 WEEKS TO CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 31
+      "count": 1
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "JULIA",
-      "date": "10.02.2026",
-      "client": "NESTLE",
-      "presenter": "MIKE",
-      "source": "BLS TIKTOK",
-      "remark": "SIGNED",
-      "outcome": "SIGNED",
-      "sourceRow": 32
-    },
-    {
-      "month": "FEBRUARY",
-      "monthIndex": 2,
-      "customerService": "JULIA",
-      "date": "11.02.2026",
-      "client": "TDCX",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 33
+      "count": 1
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "JULIA",
-      "date": "11.02.2026",
-      "client": "CONNECT HOSPITALITY",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "SINGED",
       "outcome": "OTHER",
-      "sourceRow": 34
-    },
-    {
-      "month": "FEBRUARY",
-      "monthIndex": 2,
-      "customerService": "JULIA",
-      "date": "23.02.2026",
-      "client": "UNIQLO",
-      "presenter": "MIKE",
-      "source": "BLS TIKTOK",
-      "remark": "SIGNED",
-      "outcome": "SIGNED",
-      "sourceRow": 35
-    },
-    {
-      "month": "FEBRUARY",
-      "monthIndex": 2,
-      "customerService": "JULIA",
-      "date": "27.02.2026",
-      "client": "EDARAN OTOMOBIL",
-      "presenter": "WINSLEY",
-      "source": "BLS TIKTOK",
-      "remark": "(REJECT)",
-      "outcome": "REJECTED",
-      "sourceRow": 36
+      "count": 1
     },
     {
       "month": "FEBRUARY",
       "monthIndex": 2,
       "customerService": "WIN BACK PROGRAM",
-      "date": "7.2.26",
-      "client": "ASIA DIGITAL",
       "presenter": "MIKE",
       "source": "BLS CRM",
-      "remark": "CANCEL",
       "outcome": "OTHER",
-      "sourceRow": 25
+      "count": 1
     },
     {
       "month": "MARCH",
       "monthIndex": 3,
       "customerService": "ZURA",
-      "date": "3.3.26",
-      "client": "COWAY",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 48
+      "count": 1
     },
     {
       "month": "MARCH",
       "monthIndex": 3,
       "customerService": "ZURA",
-      "date": "5.3.26",
-      "client": "FISCAL",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "PTS",
       "outcome": "PTS",
-      "sourceRow": 49
+      "count": 1
     },
     {
       "month": "MARCH",
       "monthIndex": 3,
       "customerService": "ZURA",
-      "date": "7.3.26",
-      "client": "NICHIA",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 50
+      "count": 2
     },
     {
       "month": "MARCH",
       "monthIndex": 3,
       "customerService": "ZURA",
-      "date": "14.3.26",
-      "client": "CARLBERK",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "CONSIDER, NO REPLY",
       "outcome": "CONSIDER",
-      "sourceRow": 51
+      "count": 1
     },
     {
       "month": "MARCH",
       "monthIndex": 3,
       "customerService": "ZURA",
-      "date": "30.3.26",
-      "client": "COFFEE BOAT",
       "presenter": "MIKE",
       "source": "BLS IG",
-      "remark": "WIFE NOT AGREE",
       "outcome": "OTHER",
-      "sourceRow": 52
-    },
-    {
-      "month": "MARCH",
-      "monthIndex": 3,
-      "customerService": "ZURA",
-      "date": "28.3.26",
-      "client": "THE ITALIAN",
-      "presenter": "JACK",
-      "source": "BLS TIKTOK",
-      "remark": "REJECT",
-      "outcome": "REJECTED",
-      "sourceRow": 53
+      "count": 1
     },
     {
       "month": "MARCH",
       "monthIndex": 3,
       "customerService": "JULIA",
-      "date": "5.3.26",
-      "client": "PERUSAHAAN SAUDEE",
       "presenter": "MIKE",
       "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 48
+      "count": 3
     },
     {
       "month": "MARCH",
       "monthIndex": 3,
       "customerService": "JULIA",
-      "date": "6.3.26",
-      "client": "GENTING",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 49
+      "count": 2
     },
     {
       "month": "MARCH",
       "monthIndex": 3,
       "customerService": "JULIA",
-      "date": "6.3.26",
-      "client": "ZEBRA",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 50
+      "count": 1
     },
     {
       "month": "MARCH",
       "monthIndex": 3,
       "customerService": "JULIA",
-      "date": "7.3.26",
-      "client": "PINNACLE NEXUS",
       "presenter": "JACK",
       "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 51
+      "count": 2
     },
     {
       "month": "MARCH",
       "monthIndex": 3,
       "customerService": "JULIA",
-      "date": "7.3.26",
-      "client": "F & B",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 52
+      "count": 1
     },
     {
       "month": "MARCH",
       "monthIndex": 3,
       "customerService": "JULIA",
-      "date": "9.3.26",
-      "client": "PRUDENTIAL",
-      "presenter": "MIKE",
-      "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
-      "outcome": "SIGNED",
-      "sourceRow": 53
-    },
-    {
-      "month": "MARCH",
-      "monthIndex": 3,
-      "customerService": "JULIA",
-      "date": "10.3.26",
-      "client": "B.BRAUN",
-      "presenter": "JACK",
-      "source": "BLS TIKTOK",
-      "remark": "SIGNED",
-      "outcome": "SIGNED",
-      "sourceRow": 54
-    },
-    {
-      "month": "MARCH",
-      "monthIndex": 3,
-      "customerService": "JULIA",
-      "date": "11.3.26",
-      "client": "THOMSON",
-      "presenter": "MIKE",
-      "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
-      "outcome": "SIGNED",
-      "sourceRow": 55
-    },
-    {
-      "month": "MARCH",
-      "monthIndex": 3,
-      "customerService": "JULIA",
-      "date": "16.3.26",
-      "client": "RECKITT",
-      "presenter": "JACK",
-      "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
-      "outcome": "SIGNED",
-      "sourceRow": 56
-    },
-    {
-      "month": "MARCH",
-      "monthIndex": 3,
-      "customerService": "JULIA",
-      "date": "26.3.26",
-      "client": "TNB",
       "presenter": "WINSLEY",
       "source": null,
-      "remark": "REJECTED",
       "outcome": "REJECTED",
-      "sourceRow": 57
+      "count": 1
     },
     {
       "month": "MARCH",
       "monthIndex": 3,
       "customerService": "WIN BACK PROGRAM",
-      "date": "10.3.26",
-      "client": "TELEPERFORMANCE",
       "presenter": "JACK",
       "source": "BLS CRM",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 48
-    },
-    {
-      "month": "MARCH",
-      "monthIndex": 3,
-      "customerService": "WIN BACK PROGRAM",
-      "date": "4.4.26",
-      "client": "PHILLIP MORRIS",
-      "presenter": "JACK",
-      "source": "BLS CRM",
-      "remark": "SIGNED",
-      "outcome": "SIGNED",
-      "sourceRow": 49
+      "count": 2
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "KAI",
-      "date": "25.4.26",
-      "client": "FAETH ASIA",
       "presenter": "JACK",
       "source": "BOSCO TIKTOK",
-      "remark": "PTS",
       "outcome": "PTS",
-      "sourceRow": 71
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "ZURA",
-      "date": "1.4.26",
-      "client": "MAYBANK",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 71
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "ZURA",
-      "date": "3.4.26",
-      "client": "ZEXXEL",
       "presenter": "JACK",
       "source": "BOSCO TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 72
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "ZURA",
-      "date": "9.4.26",
-      "client": "GMG",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 73
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "ZURA",
-      "date": "10.4.26",
-      "client": "FLEXTRONIC",
       "presenter": "MIKE",
       "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 74
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "ZURA",
-      "date": "13.4.26",
-      "client": "ALLSTONES",
       "presenter": "MIKE",
       "source": "BOSCO TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 75
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "ZURA",
-      "date": "11.4.26",
-      "client": "HIL-EDROLA",
       "presenter": "WINSLEY",
       "source": "BOSCO TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 76
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "ZURA",
-      "date": "14.4.26",
-      "client": "WHITE HORSE",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "NO REPLY",
       "outcome": "OTHER",
-      "sourceRow": 77
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "ZURA",
-      "date": "14.4.26",
-      "client": "DWISOLAR",
       "presenter": "MIKE",
       "source": "BLS IG",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 78
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "ZURA",
-      "date": "20.4.26",
-      "client": "EDGENTA",
       "presenter": "WINSLEY",
       "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 79
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "ZURA",
-      "date": "28.4.26",
-      "client": "EFFLEAN",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 80
-    },
-    {
-      "month": "APRIL",
-      "monthIndex": 4,
-      "customerService": "ZURA",
-      "date": "30.4.26",
-      "client": "DHL",
-      "presenter": "JACK",
-      "source": "BLS TIKTOK",
-      "remark": "REJECT",
-      "outcome": "REJECTED",
-      "sourceRow": 81
+      "count": 2
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "JULIA",
-      "date": "2.4.26",
-      "client": "TEXAS",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 71
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "JULIA",
-      "date": "3.4.26",
-      "client": "SPX EXPRESS",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "ON HOLD / CONTRACK STAFF",
       "outcome": "OTHER",
-      "sourceRow": 72
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "JULIA",
-      "date": "8.4.26",
-      "client": "MAYBANK",
       "presenter": "JACK",
       "source": "BOSCO TIKTOK",
-      "remark": "SURVEY",
       "outcome": "OTHER",
-      "sourceRow": 73
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "JULIA",
-      "date": "8.4.26",
-      "client": "PBA",
       "presenter": "WINSLEY",
       "source": "BOSCO TIKTOK",
-      "remark": "REMARK",
       "outcome": "OTHER",
-      "sourceRow": 74
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "JULIA",
-      "date": "17.4.26",
-      "client": "EVYAP SABUN",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "E-SIGN",
       "outcome": "OTHER",
-      "sourceRow": 75
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "JULIA",
-      "date": "17.4.26",
-      "client": "ALAN KANG & CO",
       "presenter": "MIKE",
       "source": "JULIA IG",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 76
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "JULIA",
-      "date": "20.4.26",
-      "client": "TIONG NAM",
       "presenter": "JACK",
       "source": "JULIA IG",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 77
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "JULIA",
-      "date": "20.4.26",
-      "client": "USCI",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 78
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "JULIA",
-      "date": "21.4.26",
-      "client": "MAWAR MENTARI",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 79
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "JULIA",
-      "date": "24.4.26",
-      "client": "THANALEHCUMI",
       "presenter": "WINSLEY",
       "source": "JULIA TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 80
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "JULIA",
-      "date": "27.4.26",
-      "client": "STANDARD CHARTERED",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 81
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "JULIA",
-      "date": "29.4.26",
-      "client": "SG. JAN KUARI",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 82
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "JULIA",
-      "date": "29.4.26",
-      "client": "HALUAN PANTAS",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 83
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "WIN BACK PROGRAM",
-      "date": "4.4.26",
-      "client": "UNIQLO",
       "presenter": "MIKE",
       "source": "REFERRAL",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 71
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "WIN BACK PROGRAM",
-      "date": "13.4.26",
-      "client": "PONDEROSA GOLF",
       "presenter": "WINSLEY",
       "source": "BLS CRM",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 72
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "WIN BACK PROGRAM",
-      "date": "15.4.26",
-      "client": "MY DIVINE HEALTHCARE",
       "presenter": "JACK",
       "source": "BLS CRM",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 73
+      "count": 1
     },
     {
       "month": "APRIL",
       "monthIndex": 4,
       "customerService": "WIN BACK PROGRAM",
-      "date": "13.4.26",
-      "client": "UNIQLO",
       "presenter": "MIKE",
       "source": "BLS CRM",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 74
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "KAI",
-      "date": "26.5.26",
-      "client": "KAH MOTOR",
       "presenter": "SK",
       "source": "BLS GIGI",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 94
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "ZURA",
-      "date": "4.5.26",
-      "client": "COTY INT",
       "presenter": "SK",
       "source": "BLS TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 94
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "ZURA",
-      "date": "4.5.26",
-      "client": "CHUNG YAP",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 95
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "ZURA",
-      "date": "5.5.26",
-      "client": "PRASARANA",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 96
+      "count": 4
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "ZURA",
-      "date": "6.5.26",
-      "client": "DH SSC",
       "presenter": "JACK",
       "source": "BLS IG",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 97
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "ZURA",
-      "date": "7.5.26",
-      "client": "ARTISAN",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 98
+      "count": 2
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "ZURA",
-      "date": "8.5.26",
-      "client": "KH DATAGATE",
       "presenter": "MIKE",
       "source": "BLS IG",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 99
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "ZURA",
-      "date": "11.5.26",
-      "client": "SHARP",
-      "presenter": "JACK",
-      "source": "BLS TIKTOK",
-      "remark": "REJECT",
-      "outcome": "REJECTED",
-      "sourceRow": 100
-    },
-    {
-      "month": "MAY",
-      "monthIndex": 5,
-      "customerService": "ZURA",
-      "date": "11.5.26",
-      "client": "NCH",
       "presenter": "JACK",
       "source": "BLS IG",
-      "remark": "PTS",
       "outcome": "PTS",
-      "sourceRow": 101
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "ZURA",
-      "date": "14.5.26",
-      "client": "AYDA",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 102
-    },
-    {
-      "month": "MAY",
-      "monthIndex": 5,
-      "customerService": "ZURA",
-      "date": "18.5.26",
-      "client": "FOURKAY",
-      "presenter": "JACK",
-      "source": "BLS TIKTOK",
-      "remark": "REJECT",
-      "outcome": "REJECTED",
-      "sourceRow": 103
-    },
-    {
-      "month": "MAY",
-      "monthIndex": 5,
-      "customerService": "ZURA",
-      "date": "22.5.26",
-      "client": "SIEMENS",
-      "presenter": "WINSLEY",
-      "source": "BLS TIKTOK",
-      "remark": "CONSIDER",
-      "outcome": "CONSIDER",
-      "sourceRow": 104
-    },
-    {
-      "month": "MAY",
-      "monthIndex": 5,
-      "customerService": "ZURA",
-      "date": "29.5.26",
-      "client": "PK AGRO",
-      "presenter": "JACK",
-      "source": "BLS TIKTOK",
-      "remark": "REJECT",
-      "outcome": "REJECTED",
-      "sourceRow": 105
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "JULIA",
-      "date": "9.5.26",
-      "client": "NXP",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 94
+      "count": 2
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "JULIA",
-      "date": "16.5.26",
-      "client": "RURAL CAPITAL",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "CHECKING",
       "outcome": "OTHER",
-      "sourceRow": 95
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "JULIA",
-      "date": "16.5.26",
-      "client": "CHUBB BUSINESS",
       "presenter": "WINSLEY",
       "source": "JULIA TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 96
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "JULIA",
-      "date": "20.5.26",
-      "client": "INSTITUTE",
       "presenter": "MIKE",
       "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 97
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "JULIA",
-      "date": "22.5.26",
-      "client": "MEWAH OIL",
       "presenter": "WINSLEY",
       "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 98
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "JULIA",
-      "date": "22.5.26",
-      "client": "TERAS PADU",
       "presenter": "WINSLEY",
       "source": "BOSCO TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 99
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "JULIA",
-      "date": "25.5.26",
-      "client": "HANWHA",
       "presenter": "JACK",
       "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 100
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "JULIA",
-      "date": "26.5.26",
-      "client": "IM GLOBLA",
-      "presenter": "MIKE",
-      "source": "BLS TIKTOK",
-      "remark": "SIGNED",
-      "outcome": "SIGNED",
-      "sourceRow": 101
-    },
-    {
-      "month": "MAY",
-      "monthIndex": 5,
-      "customerService": "JULIA",
-      "date": "29.5.26",
-      "client": "BESI",
       "presenter": "WINSLEY",
       "source": "BOSCO TIKTOK",
-      "remark": null,
       "outcome": "NO REMARK",
-      "sourceRow": 102
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "JULIA",
-      "date": "29.5.26",
-      "client": "WESTERN UNION",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 103
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "WIN BACK PROGRAM",
-      "date": "6.5.26",
-      "client": "INOKOM",
       "presenter": "WINSLEY",
       "source": "BLS CRM",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 94
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "WIN BACK PROGRAM",
-      "date": "8.5.26",
-      "client": "CONCENTRIX",
       "presenter": "JACK",
       "source": "BLS CRM",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 95
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "WIN BACK PROGRAM",
-      "date": "7.5.26",
-      "client": "GERBANG ALAF (REFFER)",
       "presenter": "WINSLEY",
       "source": "BLS CRM",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 96
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "WIN BACK PROGRAM",
-      "date": "21.5.26",
-      "client": "OCBC (REFFERAL)",
       "presenter": "MIKE",
       "source": "BLS CRM",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 97
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "WIN BACK PROGRAM",
-      "date": "25.5.26",
-      "client": "RHB (BLS MAIN)",
       "presenter": "MIKE",
       "source": "BLS CRM",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 98
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "WIN BACK PROGRAM",
-      "date": "26.5.26",
-      "client": "EITA ELEVETOR",
       "presenter": "WINSLEY",
       "source": "BLS CRM",
-      "remark": "PTS",
       "outcome": "PTS",
-      "sourceRow": 99
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "WIN BACK PROGRAM",
-      "date": "27.5.26",
-      "client": "CAPTHORNE",
       "presenter": "JACK",
       "source": "BLS CRM",
-      "remark": "PTS",
       "outcome": "PTS",
-      "sourceRow": 100
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "SHU",
-      "date": "7.5.26",
-      "client": "MICRON",
       "presenter": "MIKE",
       "source": "BOSCO TIKTOK",
-      "remark": "ON HOLD",
       "outcome": "OTHER",
-      "sourceRow": 94
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "SHU",
-      "date": "7.5.26",
-      "client": "NEXTGREEN",
       "presenter": "WINSLEY",
       "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 95
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "SHU",
-      "date": "11.5.26",
-      "client": "GERBANG ALAF",
       "presenter": "JACK",
       "source": "BOSCO TIKTOK",
-      "remark": "NO REPLY",
       "outcome": "OTHER",
-      "sourceRow": 96
+      "count": 1
     },
     {
       "month": "MAY",
       "monthIndex": 5,
       "customerService": "SHU",
-      "date": "25.5.26",
-      "client": "KEJURUTERAAN",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 97
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "KAI",
-      "date": "18.6.26",
-      "client": "BSL",
       "presenter": "SK",
       "source": "BLS GIGI",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 117
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "ZURA",
-      "date": "2.6.26",
-      "client": "GERBANG ALAF",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 117
+      "count": 2
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "ZURA",
-      "date": "4.6.26",
-      "client": "MATTEL",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 118
+      "count": 3
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "ZURA",
-      "date": "8.6.26",
-      "client": "OMRON",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 119
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "ZURA",
-      "date": "10.6.26",
-      "client": "RAILWAY",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "CONSIDER",
-      "outcome": "CONSIDER",
-      "sourceRow": 120
-    },
-    {
-      "month": "JUNE",
-      "monthIndex": 6,
-      "customerService": "ZURA",
-      "date": "13.6.26",
-      "client": "TF AMD",
-      "presenter": "WINSLEY",
-      "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 121
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "ZURA",
-      "date": "22.06.26",
-      "client": "SPORTATHLON",
-      "presenter": "JACK",
-      "source": "BLS TIKTOK",
-      "remark": "REJECT",
-      "outcome": "REJECTED",
-      "sourceRow": 122
-    },
-    {
-      "month": "JUNE",
-      "monthIndex": 6,
-      "customerService": "ZURA",
-      "date": "24.06.26",
-      "client": "AMANJAYA",
       "presenter": "WINSLEY",
       "source": "BLS IG",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 123
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "ZURA",
-      "date": "27.06.26",
-      "client": "HSBC",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 124
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "ZURA",
-      "date": "27.06.26",
-      "client": "WILMAR",
       "presenter": "WINSLEY",
       "source": "BLS GOOGLE",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 125
-    },
-    {
-      "month": "JUNE",
-      "monthIndex": 6,
-      "customerService": "ZURA",
-      "date": "29.06.26",
-      "client": "CANELECT",
-      "presenter": "JACK",
-      "source": "BLS TIKTOK",
-      "remark": "REJECT",
-      "outcome": "REJECTED",
-      "sourceRow": 126
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "JULIA",
-      "date": "4.6.26",
-      "client": "ALPHA SOLAR",
       "presenter": "MIKE",
       "source": "BOSCO TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 117
+      "count": 2
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "JULIA",
-      "date": "5.6.26",
-      "client": "AGODA",
       "presenter": "WINSLEY",
       "source": "BOSCO TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 118
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "JULIA",
-      "date": "9.6.26",
-      "client": "EVOLUTION COMMERCE",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 119
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "JULIA",
-      "date": "11.6.26",
-      "client": "MILLION REACH",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 120
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "JULIA",
-      "date": "12.6.26",
-      "client": "MOLEX",
       "presenter": "MIKE",
       "source": "JULIA IG",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 121
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "JULIA",
-      "date": "13.6.26",
-      "client": "MENG KAH",
       "presenter": "JACK",
       "source": "JULIA TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 122
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "JULIA",
-      "date": "15.6.26",
-      "client": "TERAS DARA",
       "presenter": "WINSLEY",
       "source": "WALK IN",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 123
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "JULIA",
-      "date": "20.6.26",
-      "client": "JNTL",
       "presenter": "WINSLEY",
       "source": "BOSCO TIKTOK",
-      "remark": "NEED 1 YEAR",
       "outcome": "OTHER",
-      "sourceRow": 124
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "JULIA",
-      "date": "20.6.26",
-      "client": "WANZU ENGINEERING",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "NEED 1 YEAR",
       "outcome": "OTHER",
-      "sourceRow": 125
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "JULIA",
-      "date": "23.6.26",
-      "client": "GERBANG ALAF",
-      "presenter": "MIKE",
-      "source": "BOSCO TIKTOK",
-      "remark": "REJECT",
-      "outcome": "REJECTED",
-      "sourceRow": 126
-    },
-    {
-      "month": "JUNE",
-      "monthIndex": 6,
-      "customerService": "JULIA",
-      "date": "24.6.26",
-      "client": "ASIA JAYA",
       "presenter": "MIKE",
       "source": "JULIA TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 127
+      "count": 2
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "JULIA",
-      "date": "24.6.26",
-      "client": "INTERSCIENCE",
       "presenter": "JACK",
       "source": "BOSCO TIKTOK",
-      "remark": "RESIGN",
       "outcome": "OTHER",
-      "sourceRow": 128
-    },
-    {
-      "month": "JUNE",
-      "monthIndex": 6,
-      "customerService": "JULIA",
-      "date": "25.6.26",
-      "client": "ESSEX",
-      "presenter": "MIKE",
-      "source": "JULIA TIKTOK",
-      "remark": "REJECT",
-      "outcome": "REJECTED",
-      "sourceRow": 129
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "WIN BACK PROGRAM",
-      "date": "5.6.26",
-      "client": "MAGNA MEDITECH",
       "presenter": "WINSLEY",
       "source": "BLS CRM",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 117
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "WIN BACK PROGRAM",
-      "date": "12.6.26",
-      "client": "UNIQLO",
       "presenter": "MIKE",
       "source": "BLS CRM",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 118
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "WIN BACK PROGRAM",
-      "date": "16.6.26",
-      "client": "SNAB FOCUS",
       "presenter": "WINSLEY",
       "source": "BLS CRM",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 119
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "WIN BACK PROGRAM",
-      "date": "16.6.26",
-      "client": "GUPPY",
       "presenter": "WINSLEY",
       "source": null,
-      "remark": null,
       "outcome": "NO REMARK",
-      "sourceRow": 120
-    },
-    {
-      "month": "JUNE",
-      "monthIndex": 6,
-      "customerService": "WIN BACK PROGRAM",
-      "date": "17.6.26",
-      "client": "NEXTEDGE",
-      "presenter": "WINSLEY",
-      "source": null,
-      "remark": null,
-      "outcome": "NO REMARK",
-      "sourceRow": 121
-    },
-    {
-      "month": "JUNE",
-      "monthIndex": 6,
-      "customerService": "WIN BACK PROGRAM",
-      "date": "30.6.26",
-      "client": "COLUMBIA",
-      "presenter": "WINSLEY",
-      "source": null,
-      "remark": null,
-      "outcome": "NO REMARK",
-      "sourceRow": 122
+      "count": 3
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "SHU",
-      "date": "9.6.26",
-      "client": "TEN THOUSAND",
       "presenter": null,
       "source": "BOSCO TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 117
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "SHU",
-      "date": "15.6.26",
-      "client": "CRESCENDO",
       "presenter": null,
       "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 118
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "SHU",
-      "date": "17.6.26",
-      "client": "MATCHLINK",
       "presenter": null,
       "source": "BOSCO TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 119
+      "count": 1
     },
     {
       "month": "JUNE",
       "monthIndex": 6,
       "customerService": "SHU",
-      "date": "19.6.26",
-      "client": "PREMIERTEL",
       "presenter": null,
       "source": "BOSCO TIKTOK",
-      "remark": null,
       "outcome": "NO REMARK",
-      "sourceRow": 120
+      "count": 1
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "ZURA",
-      "date": "1.7.26",
-      "client": "ANEKA",
       "presenter": "WINSLEY",
       "source": "BLS IG",
-      "remark": null,
       "outcome": "NO REMARK",
-      "sourceRow": 140
+      "count": 1
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "ZURA",
-      "date": "2.7.26",
-      "client": "HENRY",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 141
+      "count": 1
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "ZURA",
-      "date": "6.7.26",
-      "client": "SG LONG",
       "presenter": "MIKE",
       "source": "BLS IG",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 142
+      "count": 1
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "ZURA",
-      "date": "17.7.26",
-      "client": "PEARL GAIN",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 143
+      "count": 2
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "ZURA",
-      "date": "21.7.26",
-      "client": "UNITED U-LI",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 144
+      "count": 1
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "ZURA",
-      "date": "24.7.26",
-      "client": "TDCX",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 145
+      "count": 1
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "ZURA",
-      "date": "29.7.26",
-      "client": "SUNWAY RESORT",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 146
-    },
-    {
-      "month": "JULY",
-      "monthIndex": 7,
-      "customerService": "ZURA",
-      "date": "30.7.26",
-      "client": "MILES AUTISM",
-      "presenter": "JACK",
-      "source": "BLS TIKTOK",
-      "remark": "SIGNED",
-      "outcome": "SIGNED",
-      "sourceRow": 147
+      "count": 1
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "JULIA",
-      "date": "1.7.26",
-      "client": "SYARIKAT MAKMUR",
       "presenter": "JACK",
       "source": "JULIA TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 140
+      "count": 1
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "JULIA",
-      "date": "3.7.26",
-      "client": "NAIM ENGINEERING",
       "presenter": "MIKE",
       "source": "JULIA TIKTOK",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 141
+      "count": 2
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "JULIA",
-      "date": "4.7.26",
-      "client": "MICRON",
       "presenter": "JACK",
       "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 142
+      "count": 1
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "JULIA",
-      "date": "6.7.26",
-      "client": "PANTAI HOSPITAL",
       "presenter": "WINSLEY",
       "source": "JULIA TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 143
+      "count": 2
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "JULIA",
-      "date": "14.7.26",
-      "client": "CUMMINS",
       "presenter": "WINSLEY",
       "source": "JULIA TIKTOK",
-      "remark": null,
       "outcome": "NO REMARK",
-      "sourceRow": 144
+      "count": 1
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "JULIA",
-      "date": "16.7.26",
-      "client": "ULTIMATE MACHINING",
       "presenter": "MIKE",
       "source": "JULIA TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 145
+      "count": 2
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "JULIA",
-      "date": "22.7.26",
-      "client": "MISC MARINE",
       "presenter": "JACK",
       "source": "JULIA TIKTOK",
-      "remark": "PTS",
       "outcome": "PTS",
-      "sourceRow": 146
-    },
-    {
-      "month": "JULY",
-      "monthIndex": 7,
-      "customerService": "JULIA",
-      "date": "27.7.26",
-      "client": "HCL",
-      "presenter": "WINSLEY",
-      "source": "JULIA TIKTOK",
-      "remark": "CONSIDER",
-      "outcome": "CONSIDER",
-      "sourceRow": 147
-    },
-    {
-      "month": "JULY",
-      "monthIndex": 7,
-      "customerService": "JULIA",
-      "date": "27.7.26",
-      "client": "PRUDENTIAL",
-      "presenter": "MIKE",
-      "source": "JULIA TIKTOK",
-      "remark": "REJECT, FRAUD DOCUMENT",
-      "outcome": "REJECTED",
-      "sourceRow": 148
-    },
-    {
-      "month": "JULY",
-      "monthIndex": 7,
-      "customerService": "JULIA",
-      "date": "30.7.26",
-      "client": "DAYONE",
-      "presenter": "MIKE",
-      "source": "JULIA TIKTOK",
-      "remark": "CONSIDER",
-      "outcome": "CONSIDER",
-      "sourceRow": 149
+      "count": 1
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "WIN BACK PROGRAM",
-      "date": "17.7.26",
-      "client": "DELIVERY HERO",
       "presenter": "WINSLEY",
       "source": "BLS CRM",
-      "remark": null,
       "outcome": "NO REMARK",
-      "sourceRow": 140
+      "count": 1
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "SHU",
-      "date": "1.7.26",
-      "client": "SITC CONTAINER",
       "presenter": "MIKE",
       "source": "BLS IG",
-      "remark": "PTS",
       "outcome": "PTS",
-      "sourceRow": 140
+      "count": 1
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "SHU",
-      "date": "3.7.26",
-      "client": "B.BRAUN",
       "presenter": "MIKE",
       "source": "BOSCO TIKTOK",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 141
+      "count": 1
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "SHU",
-      "date": "17.7.26",
-      "client": "CHUAN UN CHYE",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 142
+      "count": 1
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "SHU",
-      "date": "28.7.26",
-      "client": "HILDING ANDERS",
       "presenter": "JACK",
       "source": "JULIA TIKTOK",
-      "remark": "PTS",
       "outcome": "PTS",
-      "sourceRow": 143
+      "count": 1
     },
     {
       "month": "JULY",
       "monthIndex": 7,
       "customerService": "SHU",
-      "date": "31.7.26",
-      "client": "MALAYSIA AIRLINES",
       "presenter": "JACK",
       "source": "BLS TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 144
+      "count": 1
     },
     {
       "month": "AUGUST",
       "monthIndex": 8,
       "customerService": "ZURA",
-      "date": "6.8.26",
-      "client": "CARSOME",
       "presenter": "MIKE",
       "source": "BLS TIKTOK",
-      "remark": "PTS",
       "outcome": "PTS",
-      "sourceRow": 163
+      "count": 1
     },
     {
       "month": "AUGUST",
       "monthIndex": 8,
       "customerService": "ZURA",
-      "date": "14.8.26",
-      "client": "PRUDENTIAL",
       "presenter": "WINSLEY",
       "source": "BLS TIKTOK",
-      "remark": "CLARIFY BAD DEBT",
       "outcome": "OTHER",
-      "sourceRow": 164
+      "count": 1
     },
     {
       "month": "AUGUST",
       "monthIndex": 8,
       "customerService": "JULIA",
-      "date": "1.8.26",
-      "client": "IKANO HANDEL",
       "presenter": "WINSLEY",
       "source": "BLS IG",
-      "remark": "PTS",
       "outcome": "PTS",
-      "sourceRow": 163
+      "count": 1
     },
     {
       "month": "AUGUST",
       "monthIndex": 8,
       "customerService": "JULIA",
-      "date": "1.8.26",
-      "client": "AEON",
       "presenter": "WINSLEY",
       "source": "JULIA TIKTOK",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 164
+      "count": 1
     },
     {
       "month": "AUGUST",
       "monthIndex": 8,
       "customerService": "JULIA",
-      "date": "7.8.26",
-      "client": "MEDIEEXPRESS",
       "presenter": "JACK",
       "source": "BLS IG",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 165
+      "count": 1
     },
     {
       "month": "AUGUST",
       "monthIndex": 8,
       "customerService": "JULIA",
-      "date": "7.8.26",
-      "client": "EXYTE",
       "presenter": "JACK",
       "source": "BLS IG",
-      "remark": "REJECT",
       "outcome": "REJECTED",
-      "sourceRow": 166
+      "count": 1
     },
     {
       "month": "AUGUST",
       "monthIndex": 8,
       "customerService": "JULIA",
-      "date": "12.8.26",
-      "client": "INFINEON",
       "presenter": "WINSLEY",
       "source": "JULIA TIKTOK",
-      "remark": "PTS",
       "outcome": "PTS",
-      "sourceRow": 167
+      "count": 1
     },
     {
       "month": "AUGUST",
       "monthIndex": 8,
       "customerService": "JULIA",
-      "date": "13.8.26",
-      "client": "F&N BEVERAGES",
       "presenter": "MIKE",
       "source": "JULIA TIKTOK",
-      "remark": null,
       "outcome": "NO REMARK",
-      "sourceRow": 168
+      "count": 1
     },
     {
       "month": "AUGUST",
       "monthIndex": 8,
       "customerService": "SHU",
-      "date": "6.8.26",
-      "client": "ECO MAJESTIC",
       "presenter": "WINSLEY",
       "source": "BLS CRM",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 163
+      "count": 1
     },
     {
       "month": "AUGUST",
       "monthIndex": 8,
       "customerService": "SHU",
-      "date": "6.8.26",
-      "client": "FRESENIUS KABI",
       "presenter": "MIKE",
       "source": "BLS CRM",
-      "remark": "REJECT, HUTANG ALONG",
       "outcome": "REJECTED",
-      "sourceRow": 164
+      "count": 1
     },
     {
       "month": "AUGUST",
       "monthIndex": 8,
       "customerService": "SHU",
-      "date": "11.8.26",
-      "client": "DYSON (REFFERRAL CRESCENDO)",
       "presenter": "WINSLEY",
       "source": "REFFERAL",
-      "remark": "CONSIDER",
       "outcome": "CONSIDER",
-      "sourceRow": 165
+      "count": 1
     },
     {
       "month": "AUGUST",
       "monthIndex": 8,
       "customerService": "SHU",
-      "date": "12.8.26",
-      "client": "ANCHOR MARINE",
       "presenter": "JACK",
       "source": "JULIA CRM",
-      "remark": "SIGNED",
       "outcome": "SIGNED",
-      "sourceRow": 166
+      "count": 1
     }
-  ]
+  ],
+  "privacy": "aggregated"
 };
-const TRACKER={
+let TRACKER={
   "extractedAt": "2026-08-17",
   "sourceSheet": "APPT TRACKER (2026)",
   "current": [
@@ -3088,31 +2147,35 @@ const TRACKER={
     }
   }
 };
-const CN={JANUARY:'1月',FEBRUARY:'2月',MARCH:'3月',APRIL:'4月',MAY:'5月',JUNE:'6月',JULY:'7月',AUGUST:'8月'};
+const CN={JANUARY:'1月',FEBRUARY:'2月',MARCH:'3月',APRIL:'4月',MAY:'5月',JUNE:'6月',JULY:'7月',AUGUST:'8月',SEPTEMBER:'9月',OCTOBER:'10月',NOVEMBER:'11月',DECEMBER:'12月'};
 const $=s=>document.querySelector(s),fmt=n=>n.toLocaleString('en-US'),pct=(a,b)=>b?100*a/b:0,rate=n=>n.toFixed(1)+'%';
 let role='presenter',person='ALL',month='ALL',viewRecords=[];
 function roleList(){return role==='presenter'?DATA.presenters:DATA.customerServices}
 function key(){return role==='presenter'?'presenter':'customerService'}
 function eligible(r){return role==='presenter'?DATA.presenters.includes(r.presenter):DATA.customerServices.includes(r.customerService)}
 function filtered(ignorePerson=false,ignoreMonth=false){return DATA.records.filter(r=>eligible(r)&&(ignoreMonth||month==='ALL'||r.month===month)&&(ignorePerson||person==='ALL'||r[key()]===person))}
+function sumRows(rows){return rows.reduce((sum,row)=>sum+(row.count||1),0)}
+function signedRows(rows){return rows.reduce((sum,row)=>sum+(row.outcome==='SIGNED'?(row.count||1):0),0)}
+function monthRange(){return DATA.months.length?`1–${DATA.months.length}月`:'无月份'}
 function trackerReports(){const months=month==='ALL'?DATA.months:[month];return months.map(value=>TRACKER.latestByMonth[value]).filter(Boolean)}
 function trackerValue(report,name){if(name==='ALL')return report.totals;return report.consultants.find(item=>item.name===name)||null}
 function trackerAggregate(name=person){const reports=trackerReports();let found=false;const result={leads:0,documents:0,appointments:0};const missing={leads:false,documents:false,appointments:false};for(const report of reports){const row=trackerValue(report,name);if(!row)continue;found=true;for(const metric of Object.keys(result)){if(row[metric]==null)missing[metric]=true;else result[metric]+=row[metric]}}if(!found)return{leads:null,documents:null,appointments:null};for(const metric of Object.keys(result))if(missing[metric])result[metric]=null;return result}
 function trackerForMonth(monthName,name=person){const report=TRACKER.latestByMonth[monthName];if(!report)return null;return trackerValue(report,name)}
-function makeOptions(){const m=$('#month');m.innerHTML='';m.add(new Option('全部月份（1–8月）','ALL'));DATA.months.forEach(x=>m.add(new Option(CN[x],x)));m.value=month;const p=$('#person');p.innerHTML='';p.add(new Option(role==='presenter'?'全部 Presenter':'全部 Customer Services','ALL'));roleList().forEach(x=>p.add(new Option(x,x)));if(!roleList().includes(person))person='ALL';p.value=person;$('#people').innerHTML=`<button class="${person==='ALL'?'active':''}" data-person="ALL">全部人员</button>`+roleList().map(x=>`<button class="${person===x?'active':''}" data-person="${x}">${x}</button>`).join('')}
+function makeOptions(){const m=$('#month');m.innerHTML='';m.add(new Option(`全部月份（${monthRange()}）`,'ALL'));DATA.months.forEach(x=>m.add(new Option(CN[x],x)));if(month!=='ALL'&&!DATA.months.includes(month))month='ALL';m.value=month;const p=$('#person');p.innerHTML='';p.add(new Option(role==='presenter'?'全部 Presenter':'全部 Customer Services','ALL'));roleList().forEach(x=>p.add(new Option(x,x)));if(!roleList().includes(person))person='ALL';p.value=person;$('#people').innerHTML=`<button class="${person==='ALL'?'active':''}" data-person="ALL">全部人员</button>`+roleList().map(x=>`<button class="${person===x?'active':''}" data-person="${x}">${x}</button>`).join('')}
 function card(label,value,caption,color){return `<article class="card" style="--accent:${color}"><small>${label}</small><strong>${value}</strong><span>${caption}</span></article>`}
 function outcomeClass(v){if(v==='SIGNED')return'signed';if(v==='REJECTED')return'rejected';if(v==='FOLLOW UP')return'follow';return''}
-function render(){makeOptions();viewRecords=filtered();const signed=viewRecords.filter(r=>r.outcome==='SIGNED').length,withDate=viewRecords.filter(r=>r.date).length,topSource=topBy(viewRecords,'source')[0];$('#title').textContent=role==='presenter'?'Presenter Performance':'Customer Services Performance';$('#subtitle').textContent=role==='presenter'?'MIKE、WINSLEY、JACK、SIM、SK 的记录与签约表现。':'追踪 Leads、Documents、Appointments，并保留签约数与签约率。';$('#scope').textContent=`${month==='ALL'?'2026年1–8月':CN[month]} · ${person==='ALL'?'全部人员':person} · ${viewRecords.length} 条签约追踪记录`;if(role==='customerService'){const tracker=trackerAggregate();const show=value=>value==null?'无数据':fmt(value);$('#cards').innerHTML=card('Leads',show(tracker.leads),'APPT TRACKER','#3977f6')+card('Documents',show(tracker.documents),'APPT TRACKER','#21bad1')+card('Appointments',show(tracker.appointments),'APPT TRACKER','#f5a524')+card('签约数',fmt(signed),'SIGN TRACKER','#22b573')+card('签约率',rate(pct(signed,viewRecords.length)),'签约 ÷ 签约追踪记录','#ef6681')}else{$('#cards').innerHTML=card('记录总数',fmt(viewRecords.length),'原表有效记录','#3977f6')+card('签约数',fmt(signed),'Remark = SIGNED','#22b573')+card('签约率',rate(pct(signed,viewRecords.length)),'签约 ÷ 记录','#f5a524')+card('有日期记录',fmt(withDate),`${rate(pct(withDate,viewRecords.length))} 完整度`,'#21bad1')+card('主要来源',topSource?.[0]||'无数据',topSource?`${topSource[1]} 条记录`:'当前范围无记录','#ef6681')}renderRanking();renderDonut(signed);renderTrend();renderSources();renderTable();renderInsights(signed)}
-function topBy(rows,field){const m=new Map();rows.forEach(r=>{const v=r[field]||'无数据';m.set(v,(m.get(v)||0)+1)});return [...m.entries()].sort((a,b)=>b[1]-a[1])}
-function renderRanking(){let stats;if(role==='customerService'){stats=roleList().map(name=>{const value=trackerAggregate(name);return{name,total:value.documents??0,signed:value.appointments??0,missing:value.documents==null&&value.appointments==null}});$('#rankSub').textContent='蓝色为 Documents，绿色为 Appointments；点击柱组筛选人员';$('#rankLegend1').textContent='Documents';$('#rankLegend2').textContent='Appointments'}else{const rows=filtered(true).filter(r=>month==='ALL'||r.month===month);stats=roleList().map(name=>{const rr=rows.filter(r=>r[key()]===name);return{name,total:rr.length,signed:rr.filter(r=>r.outcome==='SIGNED').length}});$('#rankSub').textContent='蓝色为记录总数，绿色为签约数；点击柱组筛选人员';$('#rankLegend1').textContent='记录';$('#rankLegend2').textContent='签约'}stats.sort((a,b)=>b.total-a.total);const max=Math.max(1,...stats.map(x=>x.total));$('#rankTitle').textContent=role==='presenter'?'Presenter 表现排名':'Customer Services 追踪排名';$('#rankChart').innerHTML=stats.map(x=>`<div class="bar-group" data-rank="${x.name}" title="${x.name}: ${x.missing?'无数据':x.total+' / '+x.signed}"><div class="bar total" style="height:${x.total?Math.max(5,x.total/max*100):0}%"></div><div class="bar signed" style="height:${x.signed?Math.max(5,x.signed/max*100):0}%"></div><label>${x.name}</label></div>`).join('')}
-function renderDonut(signed){const p=pct(signed,viewRecords.length);$('#donut').style.setProperty('--p',p);$('#rate').textContent=rate(p);const counts=topBy(viewRecords,'outcome');$('#statusGrid').innerHTML=['SIGNED','REJECTED','CONSIDER','FOLLOW UP'].map(x=>`<div class="status"><b>${counts.find(y=>y[0]===x)?.[1]||0}</b><span>${x}</span></div>`).join('')}
-function renderTrend(){let rows;if(role==='customerService'){rows=DATA.months.map(m=>{const value=trackerForMonth(m);return{m,total:value?.documents??0,signed:value?.appointments??0,missing:!value}});$('#trendSub').textContent='APPT TRACKER 最新月报：Documents 与 Appointments';$('#trendLegend1').textContent='Documents';$('#trendLegend2').textContent='Appointments'}else{rows=DATA.months.map(m=>{const rr=DATA.records.filter(r=>eligible(r)&&r.month===m&&(person==='ALL'||r[key()]===person));return{m,total:rr.length,signed:rr.filter(r=>r.outcome==='SIGNED').length}});$('#trendSub').textContent='仅使用原表 2026 年 1–8 月记录';$('#trendLegend1').textContent='记录';$('#trendLegend2').textContent='签约'}const max=Math.max(1,...rows.map(x=>x.total));$('#trend').innerHTML=rows.map(x=>`<div class="trend-group"><span style="height:${x.total?x.total/max*100:0}%;background:var(--blue)" title="${$('#trendLegend1').textContent} ${x.missing?'无数据':x.total}"></span><span style="height:${x.signed?x.signed/max*100:0}%;background:var(--green)" title="${$('#trendLegend2').textContent} ${x.missing?'无数据':x.signed}"></span><label>${CN[x.m]}</label></div>`).join('')}
+function render(){makeOptions();viewRecords=filtered();const total=sumRows(viewRecords),signed=signedRows(viewRecords),activeMonths=new Set(viewRecords.map(r=>r.month)).size,topSource=topBy(viewRecords,'source')[0];$('#title').textContent=role==='presenter'?'Presenter Performance':'Customer Services Performance';$('#subtitle').textContent=role==='presenter'?'MIKE、WINSLEY、JACK、SIM、SK 的记录与签约表现。':'追踪 Leads、Documents、Appointments，并保留签约数与签约率。';$('#scope').textContent=`${month==='ALL'?`2026年${monthRange()}`:CN[month]} · ${person==='ALL'?'全部人员':person} · ${total} 条签约追踪记录`;if(role==='customerService'){const tracker=trackerAggregate();const show=value=>value==null?'无数据':fmt(value);$('#cards').innerHTML=card('Leads',show(tracker.leads),'APPT TRACKER','#3977f6')+card('Documents',show(tracker.documents),'APPT TRACKER','#21bad1')+card('Appointments',show(tracker.appointments),'APPT TRACKER','#f5a524')+card('签约数',fmt(signed),'SIGN TRACKER','#22b573')+card('签约率',rate(pct(signed,total)),'签约 ÷ 签约追踪记录','#ef6681')}else{$('#cards').innerHTML=card('记录总数',fmt(total),'原表有效记录','#3977f6')+card('签约数',fmt(signed),'Remark = SIGNED','#22b573')+card('签约率',rate(pct(signed,total)),'签约 ÷ 记录','#f5a524')+card('活跃月份',fmt(activeMonths),`共 ${DATA.months.length} 个月份`,'#21bad1')+card('主要来源',topSource?.[0]||'无数据',topSource?`${topSource[1]} 条记录`:'当前范围无记录','#ef6681')}renderRanking();renderDonut(signed,total);renderTrend();renderSources();renderInsights(signed,total)}
+function topBy(rows,field){const m=new Map();rows.forEach(r=>{const v=r[field]||'无数据';m.set(v,(m.get(v)||0)+(r.count||1))});return [...m.entries()].sort((a,b)=>b[1]-a[1])}
+function renderRanking(){let stats;if(role==='customerService'){stats=roleList().map(name=>{const value=trackerAggregate(name);return{name,total:value.documents??0,signed:value.appointments??0,missing:value.documents==null&&value.appointments==null}});$('#rankSub').textContent='蓝色为 Documents，绿色为 Appointments；点击柱组筛选人员';$('#rankLegend1').textContent='Documents';$('#rankLegend2').textContent='Appointments'}else{const rows=filtered(true).filter(r=>month==='ALL'||r.month===month);stats=roleList().map(name=>{const rr=rows.filter(r=>r[key()]===name);return{name,total:sumRows(rr),signed:signedRows(rr)}});$('#rankSub').textContent='蓝色为记录总数，绿色为签约数；点击柱组筛选人员';$('#rankLegend1').textContent='记录';$('#rankLegend2').textContent='签约'}stats.sort((a,b)=>b.total-a.total);const max=Math.max(1,...stats.map(x=>x.total));$('#rankTitle').textContent=role==='presenter'?'Presenter 表现排名':'Customer Services 追踪排名';$('#rankChart').innerHTML=stats.map(x=>`<div class="bar-group" data-rank="${x.name}" title="${x.name}: ${x.missing?'无数据':x.total+' / '+x.signed}"><div class="bar total" style="height:${x.total?Math.max(5,x.total/max*100):0}%"></div><div class="bar signed" style="height:${x.signed?Math.max(5,x.signed/max*100):0}%"></div><label>${x.name}</label></div>`).join('')}
+function renderDonut(signed,total){const p=pct(signed,total);$('#donut').style.setProperty('--p',p);$('#rate').textContent=rate(p);const counts=topBy(viewRecords,'outcome');$('#statusGrid').innerHTML=['SIGNED','REJECTED','CONSIDER','FOLLOW UP'].map(x=>`<div class="status"><b>${counts.find(y=>y[0]===x)?.[1]||0}</b><span>${x}</span></div>`).join('')}
+function renderTrend(){let rows;if(role==='customerService'){rows=DATA.months.map(m=>{const value=trackerForMonth(m);return{m,total:value?.documents??0,signed:value?.appointments??0,missing:!value}});$('#trendSub').textContent='APPT TRACKER 最新月报：Documents 与 Appointments';$('#trendLegend1').textContent='Documents';$('#trendLegend2').textContent='Appointments'}else{rows=DATA.months.map(m=>{const rr=DATA.records.filter(r=>eligible(r)&&r.month===m&&(person==='ALL'||r[key()]===person));return{m,total:sumRows(rr),signed:signedRows(rr)}});$('#trendSub').textContent=`仅使用原表 2026 年 ${monthRange()}记录`;$('#trendLegend1').textContent='记录';$('#trendLegend2').textContent='签约'}const max=Math.max(1,...rows.map(x=>x.total));$('#trend').innerHTML=rows.map(x=>`<div class="trend-group"><span style="height:${x.total?x.total/max*100:0}%;background:var(--blue)" title="${$('#trendLegend1').textContent} ${x.missing?'无数据':x.total}"></span><span style="height:${x.signed?x.signed/max*100:0}%;background:var(--green)" title="${$('#trendLegend2').textContent} ${x.missing?'无数据':x.signed}"></span><label>${CN[x.m]}</label></div>`).join('')}
 function renderSources(){const top=topBy(viewRecords,'source').slice(0,6),max=top[0]?.[1]||1;$('#sources').innerHTML=top.length?top.map(x=>`<div class="source-row"><span title="${x[0]}">${x[0]}</span><div class="track"><i style="width:${x[1]/max*100}%"></i></div><b>${x[1]}</b></div>`).join(''):'<div class="insight"><p>当前筛选范围没有来源记录。</p></div>'}
 function renderTable(){const sorted=viewRecords.slice().sort((a,b)=>b.monthIndex-a.monthIndex||b.sourceRow-a.sourceRow);$('#records').innerHTML=sorted.length?sorted.map((r,i)=>`<tr data-record="${i}"><td>${CN[r.month]}</td><td>${r.client||'无数据'}</td><td><div class="person"><span class="avatar">${(r.presenter||'?')[0]}</span>${r.presenter||'无数据'}</div></td><td>${r.customerService}</td><td>${r.source||'无数据'}</td><td><span class="pill ${outcomeClass(r.outcome)}">${r.outcome}</span></td></tr>`).join(''):'<tr><td colspan="6">当前筛选没有原始记录。</td></tr>';viewRecords=sorted}
 function insight(title,text){return`<div class="insight"><b>${title}</b><p>${text}</p></div>`}
-function renderInsights(signed){const people=roleList().map(name=>{const rr=viewRecords.filter(r=>r[key()]===name);return{name,total:rr.length,signed:rr.filter(r=>r.outcome==='SIGNED').length}}),topSigned=people.slice().sort((a,b)=>b.signed-a.signed)[0],best=people.filter(x=>x.total>0).sort((a,b)=>pct(b.signed,b.total)-pct(a.signed,a.total))[0],missingDate=viewRecords.filter(r=>!r.date).length;$('#insights').innerHTML=insight('签约贡献',topSigned&&topSigned.signed?`${topSigned.name} 的签约数最高：${topSigned.signed}。`:'当前范围没有明确 SIGNED 记录。')+insight('转化表现',best?`${best.name} 的签约率最高：${rate(pct(best.signed,best.total))}（${best.signed}/${best.total}）。`:'当前范围没有可比较人员。')+insight('数据完整性',missingDate?`${missingDate} 条记录没有日期；仍保留在记录总数中。`:'当前范围所有记录均有日期。')+(role==='customerService'&&person==='IRA'?insight('IRA 数据','最新页面未发现 IRA 记录栏或记录，因此显示 0。'):'')}
+function renderInsights(signed,total){const people=roleList().map(name=>{const rr=viewRecords.filter(r=>r[key()]===name);return{name,total:sumRows(rr),signed:signedRows(rr)}}),topSigned=people.slice().sort((a,b)=>b.signed-a.signed)[0],best=people.filter(x=>x.total>0).sort((a,b)=>pct(b.signed,b.total)-pct(a.signed,a.total))[0];$('#insights').innerHTML=insight('签约贡献',topSigned&&topSigned.signed?`${topSigned.name} 的签约数最高：${topSigned.signed}。`:'当前范围没有明确 SIGNED 记录。')+insight('转化表现',best?`${best.name} 的签约率最高：${rate(pct(best.signed,best.total))}（${best.signed}/${best.total}）。`:'当前范围没有可比较人员。')+insight('实时数据',`Google Sheets 汇总于 ${DATA.extractedAt}；当前范围共 ${total} 条记录。`)+(role==='customerService'&&person==='IRA'?insight('IRA 数据','最新页面未发现 IRA 记录栏或记录，因此显示 0。'):'')}
 document.querySelectorAll('.role-card').forEach(b=>b.onclick=()=>{role=b.dataset.role;person='ALL';document.querySelectorAll('.role-card').forEach(x=>x.classList.toggle('active',x===b));render()});$('#month').onchange=e=>{month=e.target.value;render()};$('#person').onchange=e=>{person=e.target.value;render()};$('#people').onclick=e=>{const b=e.target.closest('button');if(!b)return;person=b.dataset.person;render()};$('#rankChart').onclick=e=>{const g=e.target.closest('[data-rank]');if(!g)return;person=g.dataset.rank;render()};$('#records').onclick=e=>{const tr=e.target.closest('[data-record]');if(!tr)return;const r=viewRecords[+tr.dataset.record];$('#modalTitle').textContent=r.client||'无客户名称';$('#modalSub').textContent=`${CN[r.month]} · 原表第 ${r.sourceRow} 行`;const fields=[['日期',r.date],['Presenter',r.presenter],['Customer Service',r.customerService],['来源',r.source],['结果分类',r.outcome],['原始 Remark',r.remark]];$('#modalGrid').innerHTML=fields.map(x=>`<div><small>${x[0]}</small><b>${x[1]||'无数据'}</b></div>`).join('');$('#detail').showModal()};$('#close').onclick=()=>$('#detail').close();$('#detail').onclick=e=>{if(e.target===$('#detail'))$('#detail').close()};
-makeOptions();render();
+async function loadLiveData(){try{const response=await fetch('/api/dashboard-data',{cache:'no-store'});if(!response.ok)throw new Error('Live data unavailable');const payload=await response.json();DATA=payload.data;TRACKER=payload.tracker;$('#liveStatus').textContent='● Google Sheets 实时数据';$('#refreshed').textContent=`Google Sheets · refreshed ${DATA.extractedAt}`;}catch(error){console.error(error);$('#liveStatus').textContent='● 使用安全缓存快照';$('#refreshed').textContent=`Cached snapshot · ${DATA.extractedAt}`;}render()}
+makeOptions();loadLiveData();
 </script>
 </body>
 </html>
