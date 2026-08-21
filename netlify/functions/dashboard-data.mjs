@@ -4,8 +4,7 @@ const APPT_GID = "1178171002";
 const MONTHS = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
 const MONTH_ALIASES = { JAN: "JANUARY", FEB: "FEBRUARY", MAR: "MARCH", APR: "APRIL", JUN: "JUNE", JUL: "JULY", AUG: "AUGUST", SEP: "SEPTEMBER", SEPT: "SEPTEMBER", OCT: "OCTOBER", NOV: "NOVEMBER", DEC: "DECEMBER" };
 const PRESENTERS = ["MIKE", "WINSLEY", "JACK", "SIM", "SK"];
-const CUSTOMER_SERVICES = ["ZURA", "JULIA", "SHU", "KAI", "IRA"];
-const GROUP_STARTS = [1, 7, 13, 19, 25];
+const CUSTOMER_SERVICES = ["ZURA", "JULIA", "SHU", "KAI", "IRA", "JAYDEN"];
 
 async function fetchMatrix(gid) {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&headers=0&gid=${gid}`;
@@ -52,7 +51,9 @@ function parseSignTracker(matrix, extractedAt) {
     const labelRow = januaryHeader ? block.rowIndex : block.rowIndex + 1;
     const dataStart = januaryHeader ? block.rowIndex + 1 : block.rowIndex + 3;
     const dataEnd = (blocks[blockIndex + 1]?.rowIndex ?? matrix.length) - 1;
-    for (const start of GROUP_STARTS) {
+    // Each Customer Service block uses six columns. Deriving the starts from
+    // the live sheet width automatically supports newly added blocks.
+    for (let start = 1; start < (matrix[0]?.length ?? 0); start += 6) {
       let customerService = String(matrix[labelRow]?.[start] ?? "").trim().toUpperCase();
       if (januaryHeader) customerService = customerService.replace(/^JANUARY\s+/, "").replace(/\s+DATE$/, "").trim();
       if (!customerService) continue;
@@ -145,6 +146,8 @@ function parseAppointmentTracker(matrix, extractedAt) {
   return { extractedAt, sourceSheet: "APPT TRACKER (2026)", latestByMonth };
 }
 
+export { parseSignTracker, parseAppointmentTracker };
+
 export default async () => {
   try {
     const extractedAt = new Date().toISOString().slice(0, 10);
@@ -168,4 +171,3 @@ export default async () => {
     });
   }
 };
-
